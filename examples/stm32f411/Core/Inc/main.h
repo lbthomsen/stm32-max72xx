@@ -61,6 +61,13 @@ void Error_Handler(void);
 #define SPI1_CS_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */
 
+#ifdef DEBUG
+#define DBG(...)    printf(__VA_ARGS__);\
+                    printf("\n");
+#else
+#define DBG(...)
+#endif
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
