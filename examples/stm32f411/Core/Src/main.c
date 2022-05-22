@@ -45,7 +45,7 @@
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-
+MAX72XX_HandleTypeDef max72xx;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -109,6 +109,11 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   DBG("MCU and peripherals has been initialized");
+
+  if (max72xx_init(&max72xx, &hspi1, SPI1_CS_GPIO_Port, SPI1_CS_Pin) != MAX72XX_Ok) {
+	  DBG("MAX72XX Init Failed");
+	  Error_Handler();
+  }
 
   /* USER CODE END 2 */
 
