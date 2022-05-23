@@ -41,10 +41,12 @@ typedef struct {
 
 typedef enum {
 	MAX72XX_Ok,   // 0
-	MAX72_Err,    // 1
+	MAX72XX_Err,    // 1
 } MAX72XX_result_t;
 
 MAX72XX_result_t max72xx_init(MAX72XX_HandleTypeDef *max72xx, SPI_HandleTypeDef *hspi, GPIO_TypeDef *cs_port, uint16_t cs_pin, uint8_t digits);
+
+MAX72XX_result_t max72xx_shutdown(MAX72XX_HandleTypeDef *max72xx, uint8_t shutdown);
 
 MAX72XX_result_t max72xx_set_digit(MAX72XX_HandleTypeDef *max72xx, uint8_t digit, uint8_t value);
 

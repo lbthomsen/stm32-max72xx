@@ -28,11 +28,13 @@ void cs_disable(MAX72XX_HandleTypeDef *max72xx) {
 MAX72XX_result_t max72xx_transmit(MAX72XX_HandleTypeDef *max72xx, uint8_t address, uint8_t value) {
 	MAX72XX_result_t result = MAX72XX_Ok;
 
-	//uint16_t data = (address << 8) + value;
+	uint8_t data[2] = {
+		address,
+		value
+	};
 
 	cs_enable(max72xx);
-	HAL_SPI_Transmit(max72xx->spiHandle, (uint8_t *)&address, 1, HAL_MAX_DELAY);
-	HAL_SPI_Transmit(max72xx->spiHandle, (uint8_t *)&value, 1, HAL_MAX_DELAY);
+	if (HAL_SPI_Transmit(max72xx->spiHandle, (uint8_t *)&data, 2, HAL_MAX_DELAY) != HAL_OK) result = MAX72XX_Err;
 	cs_disable(max72xx);
 
 	return result;
