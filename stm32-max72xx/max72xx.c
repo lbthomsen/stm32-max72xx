@@ -94,11 +94,11 @@ MAX72XX_result_t max72xx_set_digit(MAX72XX_HandleTypeDef *max72xx, uint8_t digit
 MAX72XX_result_t max72xx_display_number(MAX72XX_HandleTypeDef *max72xx, uint32_t number) {
 	MAX72XX_result_t result = MAX72XX_Ok;
 
-	uint8_t digit_count = log10(number);
+	uint8_t digit_count = log10(number) + 1;
 
 	for (int i = max72xx->digits; i > 0; --i) {
 		if (i <= digit_count) {
-			uint32_t digit = ((uint32_t)(number / pow(10, i))) % 10;
+			uint32_t digit = ((uint32_t)(number / pow(10, i - 1))) % 10;
 			max72xx_set_digit(max72xx, i, (uint8_t) digit);
 		} else {
 			max72xx_set_digit(max72xx, i, 0x0f);

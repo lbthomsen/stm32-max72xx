@@ -115,6 +115,8 @@ int main(void)
 	  Error_Handler();
   }
 
+  //max72xx_display_number(&max72xx, 12345678);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -127,7 +129,7 @@ int main(void)
 
 	  now = HAL_GetTick();
 
-	  if (now - last_display >= 10) {
+	  if (now - last_display >= 11) {
 
 		  max72xx_display_number(&max72xx, now);
 
