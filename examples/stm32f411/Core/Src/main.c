@@ -32,6 +32,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define DISPLAY_DIGITS 8
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -110,8 +111,7 @@ int main(void)
 
   DBG("MCU and peripherals has been initialized");
 
-  if (max72xx_init(&max72xx, &hspi1, SPI1_CS_GPIO_Port, SPI1_CS_Pin) != MAX72XX_Ok) {
-	  DBG("MAX72XX Init Failed");
+  if (max72xx_init(&max72xx, &hspi1, SPI1_CS_GPIO_Port, SPI1_CS_Pin, DISPLAY_DIGITS) != MAX72XX_Ok) {
 	  Error_Handler();
   }
 
@@ -119,8 +119,31 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+  uint32_t now = 0, last_blink = 0, last_tick = 0, last_display = 0;
+
   while (1)
   {
+
+	  now = HAL_GetTick();
+
+	  if (now - last_display >= 10) {
+
+		  max72xx_display_number(&max72xx, now);
+
+		  last_display = now;
+	  }
+
+	  if (now - last_blink >= 500) {
+		  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+		  last_blink = now;
+	  }
+
+	  if (now - last_tick >= 1000) {
+		  DBG("Tick %lu", now / 1000);
+		  last_tick = now;
+	  }
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -254,11 +277,22 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : LED_Pin */
+  GPIO_InitStruct.Pin = LED_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : SPI1_CS_Pin */
   GPIO_InitStruct.Pin = SPI1_CS_Pin;
