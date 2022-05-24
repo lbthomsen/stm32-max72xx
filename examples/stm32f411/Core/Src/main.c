@@ -117,21 +117,10 @@ int main(void)
 	  Error_Handler();
   }
 
-  max72xx_wakeup(&max72xx);
-  max72xx_digits(&max72xx, DISPLAY_DIGITS);
-  max72xx_intensity(&max72xx, 0xf);
-  max72xx_decode(&max72xx, 0);
-  //max72xx_decode(&max72xx, 0b00001000);
-  //max72xx_decode(&max72xx, 0);
-
-//  max72xx_set_digit(&max72xx, 8, 4);
-//  max72xx_set_digit(&max72xx, 7, 4);
-//  max72xx_set_digit(&max72xx, 6, 4);
-//  max72xx_set_digit(&max72xx, 5, 4);
-//  max72xx_set_digit(&max72xx, 4, 4);
-//  max72xx_set_digit(&max72xx, 3, 4);
-//  max72xx_set_digit(&max72xx, 2, 4);
-//  max72xx_set_digit(&max72xx, 1, 4);
+  max72xx_wakeup(&max72xx);                 // By default it is not running
+  max72xx_digits(&max72xx, DISPLAY_DIGITS); // Number of digits to be displayed: 1-8
+  max72xx_intensity(&max72xx, 0x3);         // Intensity MUST be set after the digits
+  max72xx_decode(&max72xx, 0b00000000);     // Disable the built-in number font use our own
 
   /* USER CODE END 2 */
 

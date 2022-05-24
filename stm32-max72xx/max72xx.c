@@ -44,11 +44,11 @@ const uint8_t max72xx_font[] = {
  *
  */
 
-void cs_enable(MAX72XX_HandleTypeDef *max72xx) {
+void max72xx_cs_enable(MAX72XX_HandleTypeDef *max72xx) {
     HAL_GPIO_WritePin(max72xx->cs_port, max72xx->cs_pin, GPIO_PIN_RESET);
 }
 
-void cs_disable(MAX72XX_HandleTypeDef *max72xx) {
+void max72xx_cs_disable(MAX72XX_HandleTypeDef *max72xx) {
     HAL_GPIO_WritePin(max72xx->cs_port, max72xx->cs_pin, GPIO_PIN_SET);
 }
 
@@ -57,10 +57,10 @@ MAX72XX_result_t max72xx_transmit(MAX72XX_HandleTypeDef *max72xx, uint8_t addres
 
     uint8_t data[2] = { address, value };
 
-    cs_enable(max72xx);
+    max72xx_cs_enable(max72xx);
     if (HAL_SPI_Transmit(max72xx->spiHandle, (uint8_t*) &data, 2, HAL_MAX_DELAY) != HAL_OK)
         result = MAX72XX_Err;
-    cs_disable(max72xx);
+    max72xx_cs_disable(max72xx);
 
     return result;
 }
@@ -81,24 +81,13 @@ MAX72XX_result_t max72xx_transmit(MAX72XX_HandleTypeDef *max72xx, uint8_t addres
  * @retval MAX72XX Status
  */
 MAX72XX_result_t max72xx_init(MAX72XX_HandleTypeDef *max72xx, SPI_HandleTypeDef *hspi, GPIO_TypeDef *cs_port, uint16_t cs_pin) {
-
     MAX72XX_result_t result = MAX72XX_Ok;
 
     max72xx->spiHandle = hspi;
     max72xx->cs_port = cs_port;
     max72xx->cs_pin = cs_pin;
 
-//    max72xx_transmit(max72xx, MAX72XX_DIGIT_0, 0x0f);
-//    max72xx_transmit(max72xx, MAX72XX_DIGIT_1, 0x0f);
-//    max72xx_transmit(max72xx, MAX72XX_DIGIT_2, 0x0f);
-//    max72xx_transmit(max72xx, MAX72XX_DIGIT_3, 0x0f);
-//    max72xx_transmit(max72xx, MAX72XX_DIGIT_4, 0x0f);
-//    max72xx_transmit(max72xx, MAX72XX_DIGIT_5, 0x0f);
-//    max72xx_transmit(max72xx, MAX72XX_DIGIT_6, 0x0f);
-//    max72xx_transmit(max72xx, MAX72XX_DIGIT_7, 0x0f);
-
     return result;
-
 }
 
 MAX72XX_result_t max72xx_shutdown(MAX72XX_HandleTypeDef *max72xx) {
@@ -149,15 +138,7 @@ MAX72XX_result_t max72xx_decode(MAX72XX_HandleTypeDef *max72xx, uint8_t decode) 
 MAX72XX_result_t max72xx_set_digit(MAX72XX_HandleTypeDef *max72xx, uint8_t digit, uint8_t value) {
     MAX72XX_result_t result = MAX72XX_Ok;
 
-    uint8_t write_value = value;
-    uint8_t decode_digit = 0x01 & (max72xx->decode >> (digit - 1));
-
-    // Check if decode for the digit is enabled
-    if (decode_digit == 0) {
-        write_value = max72xx_font[value];
-    }
-
-    if (max72xx_transmit(max72xx, digit, write_value) != MAX72XX_Ok) {
+    if (max72xx_transmit(max72xx, digit, value) != MAX72XX_Ok) {
         result = MAX72XX_Err;
     }
 
@@ -171,11 +152,17 @@ MAX72XX_result_t max72xx_display_number(MAX72XX_HandleTypeDef *max72xx, uint32_t
     uint8_t digit_count = log10(number) + 1;
 
     for (int i = max72xx->digits; i > 0; --i) {
+        uint8_t digit_decode = 0x01 & (max72xx->decode >> (i - 1));
         if (i <= digit_count) {
             uint32_t digit = ((uint32_t) (number / pow(10, i - 1))) % 10;
+            if (!digit_decode) digit = max72xx_font[digit];
             max72xx_set_digit(max72xx, i, (uint8_t) digit);
         } else {
-            max72xx_set_digit(max72xx, i, 0x0f);
+            if (digit_decode) {
+                max72xx_set_digit(max72xx, i, 0x0f);
+            } else {
+                max72xx_set_digit(max72xx, i, 0x00);
+            }
         }
     }
 
