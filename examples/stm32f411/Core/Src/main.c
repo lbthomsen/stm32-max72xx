@@ -111,11 +111,27 @@ int main(void)
 
   DBG("MCU and peripherals has been initialized");
 
-  if (max72xx_init(&max72xx, &hspi1, SPI1_CS_GPIO_Port, SPI1_CS_Pin, DISPLAY_DIGITS) != MAX72XX_Ok) {
+  HAL_Delay(1000);
+
+  if (max72xx_init(&max72xx, &hspi1, SPI1_CS_GPIO_Port, SPI1_CS_Pin) != MAX72XX_Ok) {
 	  Error_Handler();
   }
 
-  //max72xx_display_number(&max72xx, 12345678);
+  max72xx_wakeup(&max72xx);
+  max72xx_digits(&max72xx, DISPLAY_DIGITS);
+  max72xx_intensity(&max72xx, 0xf);
+  max72xx_decode(&max72xx, 0);
+  //max72xx_decode(&max72xx, 0b00001000);
+  //max72xx_decode(&max72xx, 0);
+
+//  max72xx_set_digit(&max72xx, 8, 4);
+//  max72xx_set_digit(&max72xx, 7, 4);
+//  max72xx_set_digit(&max72xx, 6, 4);
+//  max72xx_set_digit(&max72xx, 5, 4);
+//  max72xx_set_digit(&max72xx, 4, 4);
+//  max72xx_set_digit(&max72xx, 3, 4);
+//  max72xx_set_digit(&max72xx, 2, 4);
+//  max72xx_set_digit(&max72xx, 1, 4);
 
   /* USER CODE END 2 */
 
